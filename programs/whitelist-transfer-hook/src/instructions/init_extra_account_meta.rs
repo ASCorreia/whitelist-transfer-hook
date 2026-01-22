@@ -38,7 +38,7 @@ impl<'info> InitializeExtraAccountMetaList<'info> {
                     ],
                     false, // is_signer
                     false // is_writable
-                )?
+                )?,
             ]
         )
     }

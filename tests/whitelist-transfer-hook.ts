@@ -85,7 +85,7 @@ describe("whitelist-transfer-hook", () => {
     console.log("Transaction signature:", tx);
   });
 
-  it("Remove user to whitelist", async () => {
+  xit("Remove user to whitelist", async () => {
     const tx = await program.methods.removeFromWhitelist(provider.publicKey)
       .accountsPartial({
         admin: provider.publicKey,

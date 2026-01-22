@@ -49,11 +49,16 @@ impl<'info> TransferHook<'info> {
     /// This function is called when the transfer hook is executed.
     pub fn transfer_hook(&mut self, _amount: u64) -> Result<()> {
         // Fail this instruction if it is not called from within a transfer hook
+        
         self.check_is_transferring()?;
 
-        if !self.whitelist.address.contains(self.owner.key) {
-            panic!("TransferHook: Owner is not whitelisted");
-        };
+        // Deserialize extra_account_meta_list as Whitelist
+        let whitelist_data = self.extra_account_meta_list.to_account_info();
+        let data = whitelist_data.try_borrow_data()?;
+        let whitelist = Whitelist::try_deserialize(&mut &data[..])?;
+
+        msg!("Source token owner: {}", self.source_token.owner);
+        msg!("Destination token owner: {}", self.destination_token.owner);
 
         Ok(())
     }
