@@ -52,13 +52,14 @@ impl<'info> TransferHook<'info> {
         
         self.check_is_transferring()?;
 
-        // Deserialize extra_account_meta_list as Whitelist
-        let whitelist_data = self.extra_account_meta_list.to_account_info();
-        let data = whitelist_data.try_borrow_data()?;
-        let whitelist = Whitelist::try_deserialize(&mut &data[..])?;
-
         msg!("Source token owner: {}", self.source_token.owner);
         msg!("Destination token owner: {}", self.destination_token.owner);
+
+        if self.whitelist.address.contains(&self.source_token.owner) {
+            msg!("Transfer allowed: The address is whitelisted");
+        } else {
+            panic!("TransferHook: Address is not whitelisted");
+        }
 
         Ok(())
     }

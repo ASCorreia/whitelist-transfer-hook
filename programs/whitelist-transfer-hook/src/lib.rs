@@ -50,7 +50,7 @@ pub mod whitelist_transfer_hook {
         ExtraAccountMetaList::init::<ExecuteInstruction>(
             &mut ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?,
             &extra_account_metas
-        )?;
+        ).unwrap();
 
         Ok(())
     }

@@ -17,12 +17,12 @@ no-log-ix-name = []
 idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 [dependencies]
-anchor-lang = { version = "0.31.1", features = ["interface-instructions"] }
-anchor-spl = "0.31.1"
+anchor-lang = { version = "0.32.1", features = ["interface-instructions"] }
+anchor-spl = "0.32.1"
 # Library for easy management of 8-byte discriminators
-spl-discriminator = "0.4"
+spl-discriminator = "0.5.1"
 # Library defining a generic state interface to encode additional required accounts for an instruction, using Type-Length-Value structures
-spl-tlv-account-resolution = "0.10.0"
+spl-tlv-account-resolution = "0.11.1"
 # Library with helper to resolve additional accounts
-spl-transfer-hook-interface = "0.10.0"
+spl-transfer-hook-interface = "2.1.0"
 
