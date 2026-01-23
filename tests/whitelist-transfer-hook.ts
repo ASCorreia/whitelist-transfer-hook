@@ -224,7 +224,9 @@ describe("whitelist-transfer-hook", () => {
     }
     catch (error) {
       if (error instanceof SendTransactionError) {
-        console.error("\nTransaction failed:", error.logs[6]);;
+        console.error("\nTransaction failed:", error.logs[6]);
+        // console.error("\nTransaction failed. Full logs:");
+        // error.logs?.forEach((log, i) => console.error(`  ${i}: ${log}`));
       } else {
         console.error("\nUnexpected error:", error);
       }

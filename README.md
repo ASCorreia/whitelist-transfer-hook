@@ -216,24 +216,22 @@ In this context, we are passing all the accounts needed to set up the transfer h
 ```rust
 impl<'info> InitializeExtraAccountMetaList<'info> {
     pub fn extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
+        // Derive the whitelist PDA using our program ID
+        let (whitelist_pda, _bump) = Pubkey::find_program_address(
+            &[b"whitelist"],
+            &ID
+        );
+
         Ok(
             vec![
-                ExtraAccountMeta::new_with_seeds(
-                    &[
-                        Seed::Literal {
-                            bytes: b"whitelist".to_vec(),
-                        },
-                    ],
-                    false, // is_signer
-                    false // is_writable
-                )?
+                ExtraAccountMeta::new_with_pubkey(&whitelist_pda.to_bytes().into(), false, false).unwrap(),
             ]
         )
     }
 }
 ```
 
-In here, we define the extra accounts that will be required during transfer hook execution. We specify that the whitelist account (derived from the "whitelist" seed) should be included in every transfer validation.
+In here, we define the extra accounts that will be required during transfer hook execution. We pre-compute the whitelist PDA using `find_program_address` and include it using `new_with_pubkey`. This ensures the whitelist account is included in every transfer validation.
 
 ---
 
@@ -291,9 +289,14 @@ impl<'info> TransferHook<'info> {
         // Fail this instruction if it is not called from within a transfer hook
         self.check_is_transferring()?;
 
-        if !self.whitelist.address.contains(self.owner.key) {
-            panic!("TransferHook: Owner is not whitelisted");
-        };
+        msg!("Source token owner: {}", self.source_token.owner);
+        msg!("Destination token owner: {}", self.destination_token.owner);
+
+        if self.whitelist.address.contains(&self.source_token.owner) {
+            msg!("Transfer allowed: The address is whitelisted");
+        } else {
+            panic!("TransferHook: Address is not whitelisted");
+        }
 
         Ok(())
     }
@@ -301,22 +304,32 @@ impl<'info> TransferHook<'info> {
     /// Checks if the transfer hook is being executed during a transfer operation.
     fn check_is_transferring(&mut self) -> Result<()> {
         // Ensure that the source token account has the transfer hook extension enabled
+
+        // Get the account info of the source token account
         let source_token_info = self.source_token.to_account_info();
+        // Borrow the account data mutably
         let mut account_data_ref: RefMut<&mut [u8]> = source_token_info.try_borrow_mut_data()?;
+
+        // Unpack the account data as a PodStateWithExtensionsMut
+        // This will allow us to access the extensions of the token account
+        // We use PodStateWithExtensionsMut because TokenAccount is a POD (Plain Old Data) type
         let mut account = PodStateWithExtensionsMut::<PodAccount>::unpack(*account_data_ref)?;
+        // Get the TransferHookAccount extension
+        // Search for the TransferHookAccount extension in the token account
+        // The returning struct has a `transferring` field that indicates if the account is in the middle of a transfer operation
         let account_extension = account.get_extension_mut::<TransferHookAccount>()?;
-    
+
         // Check if the account is in the middle of a transfer operation
         if !bool::from(account_extension.transferring) {
             panic!("TransferHook: Not transferring");
         }
-    
+
         Ok(())
     }
 }
 ```
 
-In this implementation, we first verify that the hook is being called during an actual transfer operation by checking the transfer hook account extension. Then we validate that the owner of the source token account is present in our whitelist. If the owner is not whitelisted, the transfer will fail with a panic, preventing unauthorized token movements.
+In this implementation, we first verify that the hook is being called during an actual transfer operation by checking the transfer hook account extension. Then we log the source and destination token owners for debugging purposes. Finally, we validate that the owner of the source token account is present in our whitelist. If the address is whitelisted, the transfer is allowed; otherwise, it fails with a panic, preventing unauthorized token movements.
 
 The transfer hook integrates seamlessly with the SPL Token 2022 transfer process, automatically validating every transfer attempt against the maintained whitelist without requiring additional user intervention.
 
