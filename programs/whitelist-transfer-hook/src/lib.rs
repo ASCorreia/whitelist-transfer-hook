@@ -35,7 +35,6 @@ pub mod whitelist_transfer_hook {
         ctx.accounts.remove_from_whitelist(user)
     }
 
-    #[instruction(discriminator = InitializeExtraAccountMetaListInstruction::SPL_DISCRIMINATOR_SLICE)]
     pub fn initialize_transfer_hook(ctx: Context<InitializeExtraAccountMetaList>) -> Result<()> {
 
         msg!("Initializing Transfer Hook...");
