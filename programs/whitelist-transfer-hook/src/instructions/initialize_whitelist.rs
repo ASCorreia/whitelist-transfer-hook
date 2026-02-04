@@ -1,7 +1,6 @@
+/* 
 use anchor_lang::prelude::*;
-
 use crate::state::Whitelist;
-
 #[derive(Accounts)]
 pub struct InitializeWhitelist<'info> {
     #[account(mut)]
@@ -9,7 +8,7 @@ pub struct InitializeWhitelist<'info> {
     #[account(
         init,
         payer = admin,
-        space = 8 + 4 + 1, // 8 bytes for discriminator, 4 bytes for vector length, 1 byte for bump
+        space = 8 + 4 + 1, 
         seeds = [b"whitelist"],
         bump
     )]
@@ -28,3 +27,4 @@ impl<'info> InitializeWhitelist<'info> {
         Ok(())
     }
 }
+    */

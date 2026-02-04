@@ -1,3 +1,4 @@
+use crate::state::Whitelist;
 use anchor_lang::{ 
     prelude::*, 
 };
@@ -5,8 +6,6 @@ use anchor_spl::token_interface::{
     Mint, 
     TokenInterface,
 };
-
-use crate::state::Whitelist;
 
 #[derive(Accounts)]
 pub struct TokenFactory<'info> {
